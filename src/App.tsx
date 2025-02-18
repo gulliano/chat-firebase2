@@ -1,29 +1,23 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LoginForm } from './components/public/LoginForm';
 import { Sidebar } from './components/secure/Sidebar';
 import { ChatHeader } from './components/secure/ChatHeader';
 import { ChatArea } from './components/secure/ChatArea';
 import { MessageInput } from './components/secure/MessageInput';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth } from './firebase';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
   const [selectedContact, setSelectedContact] = useState<any>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [newMessage, setNewMessage] = useState('');
 
-  const handleSignIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoggedIn(true);
-  };
-
-  const handleGoogleSignIn = () => {
-    setIsLoggedIn(true);
-  };
 
   const handleSignOut = () => {
-    setIsLoggedIn(false);
+  //  setIsLoggedIn(false);
+      signOut(auth) ;
   };
 
   const handleContactSelect = (contact: any) => {
@@ -36,16 +30,21 @@ function App() {
     setNewMessage('');
   };
 
+  // au  chargement du composant []
+  useEffect(() => {
+    onAuthStateChanged(auth,(user)=>{
+      
+     // gestion de l'état de la connexion 
+      (user != null) ? setIsLoggedIn(true) : setIsLoggedIn(false) ;
+
+    })
+ 
+  }, [])
+  
+
   if (!isLoggedIn) {
     return (
-      <LoginForm
-        email={email}
-        password={password}
-        onEmailChange={(e) => setEmail(e.target.value)}
-        onPasswordChange={(e) => setPassword(e.target.value)}
-        onSubmit={handleSignIn}
-        onGoogleSignIn={handleGoogleSignIn}
-      />
+      <LoginForm  />
     );
   }
 
